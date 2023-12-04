@@ -66,10 +66,6 @@ from pathlib import Path
 #    return is_number(cell) and any(c for c, _, _ in engine_schematic.iter_neighbors(posx, posy) if is_symbol(c))
 #
 
-def symbol_adjacent_to_number(num_match: re.Match, sym_match: re.Match) -> bool:
-    ...
-
-
 def load_schematic(path: Path) -> tuple[dict, dict]:
     symbols = dict[tuple[int, int], re.Match]()
     numbers = dict[tuple[int, int], re.Match]()
@@ -83,6 +79,8 @@ def load_schematic(path: Path) -> tuple[dict, dict]:
 
             for num in re.finditer('\d+', line):
                 numbers[(num.span()[0], y)] = num
+
+            y += 1
 
     return symbols, numbers
 
