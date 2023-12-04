@@ -12,7 +12,7 @@ def load_schematic(path: Path) -> tuple[dict, dict]:
 
     with path.open('r') as eng_file:
         for line in eng_file.readlines():
-            for sym in re.finditer('[-+#$%&*/=@]', line):
+            for sym in re.finditer('[-+#$%&\*/=@]', line):
                 symbols[(sym.span()[0], y)] = sym
 
             for num in re.finditer('\d+', line):
@@ -51,6 +51,38 @@ def solution_part_one(path: Path) -> int:
     return sum(iter_part_numbers(symbols, numbers))
 
 
+def iter_number_neighbors(posx, posy, numbers) -> Iterator[tuple[int, int, re.Match]]:
+    neighbor_cells = list(iter_neighbors(posx, posy))
+    candidate_neighbors = filter(lambda n: posy - 1 <= n[1] <= posy + 1, numbers)
+
+    for x, y in candidate_neighbors:
+        num = numbers[(x, y)]
+        startx, stopx = num.span()
+        for nx, ny in neighbor_cells:
+            if startx <= nx <= stopx and ny == y:
+                yield x, y, num
+                break
+
+
+def iter_gear_ratios(symbols: dict[tuple[int, int], re.Match], numbers: dict[tuple[int, int], re.Match]) -> Iterator[int]:
+    # iter * symbols
+        # filter by symbols with exactly 2 numbers as neighbors
+            # yield the product of those 2 neighboring numbers.
+
+    for (sx, sy), sym in symbols.items():
+        if sym[0] != '*':
+            continue
+        neighbors = list(iter_number_neighbors(sx, sy, numbers))
+        if len(neighbors) == 2:
+            gears = [int(n[2].group()) for n in neighbors]
+            yield gears[0] * gears[1]
+        
+
+def solution_part_two(path: Path) -> int:
+    symbols, numbers = load_schematic(path)
+    return sum(iter_gear_ratios(symbols, numbers))
+
+
 def main():
     parser = ArgumentParser()
 
@@ -60,6 +92,7 @@ def main():
     engine_schematic_path = args.path
 
     print(f'solution 1: {solution_part_one(engine_schematic_path)}')
+    print(f'solution 2: {solution_part_two(engine_schematic_path)}')
 
 
 if __name__ == '__main__':
