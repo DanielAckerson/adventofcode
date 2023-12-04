@@ -59,7 +59,7 @@ def iter_number_neighbors(posx, posy, numbers) -> Iterator[tuple[int, int, re.Ma
         num = numbers[(x, y)]
         startx, stopx = num.span()
         for nx, ny in neighbor_cells:
-            if startx <= nx <= stopx and ny == y:
+            if startx <= nx < stopx and ny == y:
                 yield x, y, num
                 break
 
